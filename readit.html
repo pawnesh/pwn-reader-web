@@ -1,0 +1,243 @@
+<!--
+Author: W3layouts
+Author URL: http://w3layouts.com
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<!DOCTYPE HTML>
+<html>
+<head>
+ <title>PWN Reader Web</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="web/css/style.css">
+  <style>
+	
+#page {
+    margin-left: auto;
+    margin-right: auto;
+    width: 728px;
+}
+.btn img{
+	width:64px;
+}
+  </style>
+ <script src="jquery.js"></script>
+<script src="lib.js"></script>
+</head>
+<body>
+  <div id="container">
+  	<!---start-wrap---->
+		<div class="wrap">
+			<!---start-sidebar---->
+			<div id="w3-universal-nav">
+    	<ul id="header">
+    		<div class="logo">
+    		<a href="readit.html"><img src="web/images/logo.png" alt=""/></a>
+    		</div>
+    		<div class="top-socialicons">
+    			
+				<ul>
+					<li id="back-page"></li>
+    			</ul>
+    		</div>
+    		<div class="clear"> </div>
+    	</ul>
+    	
+    		</div>
+</div>
+      
+    <div id="main" role="main">
+		<ul id="page">
+		</ul>
+    </div>
+   </div>
+    <footer>
+
+    </footer>
+  </div>
+
+  <script>
+	$(document).ready(function(){
+		initHome();
+	});
+	
+	var previousPage = '-1';
+	
+	function openChapter(chapters){
+		var tiles = $('#tiles');
+		$(tiles).html('');
+		
+		var homePage = false;
+		var previousManga = '';
+		var manga = $(chapters).attr('data-level');
+		
+		//console.log(manga);
+			previousManga = "";
+			var mangaTemp = manga;
+			var name = manga.split(',');
+			var index = name.indexOf("");
+			if (index >= 0) {
+				name.splice( index, 1 );
+			}
+			manga = mangas; // assining root mangas list to manga
+		
+		if(mangaTemp == ''){
+			homePage = true;
+			previousManga = "";
+		}else{
+			for(var i=0;i<name.length-1;i++){
+				if(name[i] != ""){
+					
+					document.title = document.title + '>>' +name[i];
+					previousManga = previousManga + name[i] + ',';
+				}
+			}
+			console.log(name);
+			for(var i=0;i<name.length;i++){
+				if(name[i] != ""){
+					manga = manga[name[i]];
+				}
+			}
+		}
+		
+		//console.log(manga);
+		if(manga.hasOwnProperty('0')){
+			// comic in read mode
+			var length = manga.length;
+			if(homePage == false){
+				$('#back-page').html('<a href="#" class="btn" onclick="openChapter(this)" data-level="'+previousManga+'"><img src="web/images/back.svg" alt="back"/></a>');
+			}else{
+				$('#back-page').html('');
+			}
+			for(page in manga){
+				var li = $('<li>');
+				var imgSrc = manga[page];
+				var img = $('<img>').attr('src',imgSrc);
+				$(li).append(img);
+				$('#page').append(li);
+			}
+		}else{
+			// comics in explore mode
+			if(homePage == false){
+				$('#back-page').html('<a href="#" class="btn" onclick="openChapter(this)" data-level="'+previousManga+'"><img src="web/images/back.svg" alt="back"/></a>');
+			}else{
+				$('#back-page').html('');
+			}
+			$.each(manga,function(i,key){
+			var li = $('<li>');
+			var a = $('<a>').attr('href','#');
+			$(a).attr('tittle',i);
+			if(homePage){
+				$(a).attr('data-level',i);
+			}else{
+				var s = mangaTemp+','+i;
+				s = s.replace(",,",",");
+				$(a).attr('data-level',s);
+			}
+			
+			$(a).attr('onclick','openChapter(this)');
+			var p = $('<p>').html(humanize(i));
+			var imgSrc = getCoverPage(i,key);
+			
+			var img = $('<img>');
+			img.attr('src',imgSrc);
+			$(a).append(img);
+			$(li).append(a);
+			$(li).append(p);
+			$(tiles).append(li);
+			
+			});
+			$('#page').html('');
+			refresh(tiles);
+		}
+	}
+	
+	function humanize(text){
+		text = text.replace('_',' ');
+		return text.replace('-',' ');
+	}
+	
+	function initHome(){
+		
+		$('#page').html('');
+		var tiles = $('<ul>').attr('id','tiles');
+		//$('#main').html('');
+		$('#main').append(tiles);
+		$.each(mangas,function(i,key){
+			var li = $('<li>');
+			var a = $('<a>').attr('href','#');
+			$(a).attr('tittle',i);
+			$(a).attr('data-level',i);
+			$(a).attr('onclick','openChapter(this)');
+			var p = $('<p>').html(humanize(i));
+			var imgSrc = getCoverPage(i,key);
+			
+			var img = $('<img>');
+			img.attr('src',imgSrc);
+			$(a).append(img);
+			$(li).append(a);
+			$(li).append(p);
+			$(tiles).append(li);
+			
+		});
+		refresh(tiles);
+      
+		
+	}
+	
+	function refresh(tiles){
+		$(tiles).imagesLoaded(function() {
+        var handler = null;
+
+        // Prepare layout options.
+        var options = {
+          autoResize: true, // This will auto-update the layout when the browser window is resized.
+          container: $('#main'), // Optional, used for some extra CSS styling
+          offset: 20, // Optional, the distance between grid items
+          itemWidth: 275 // Optional, the width of a grid item
+        };
+
+        // Call the layout function.
+        handler = $('#tiles li');
+        handler.wookmark(options);
+		});
+	}
+	var counter = 0;
+	function getCoverPage(i,key){
+		var img = '';
+		if(key.hasOwnProperty('0')){
+				img =  key[0];
+		}else{
+		$.each(key,function(m,subkey){
+			
+			if(subkey.hasOwnProperty('0')){
+			//	console.log('found');
+				//console.log(subkey[0]);
+				img =  subkey[0];
+			}else{
+			//console.log(subkey);
+			//console.log(m+'m');
+			try{
+				img =  getCoverPage(m,subkey);
+			}catch(e){
+				
+			}
+			}
+		});
+		}
+		//console.log('last');
+		//console.log(img);
+		return img;
+	}
+	
+  </script>
+  <!-- Include the imagesLoaded plug-in -->
+  <script src="web/js/jquery.imagesloaded.js"></script>
+
+  <!-- Include the plug-in -->
+  <script src="web/js/jquery.wookmark.js"></script>
+
+  <!-- Once
+</div>
+</body>
+</html>
